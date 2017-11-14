@@ -8,7 +8,7 @@ Machine-readable custom errors for Apollostack's GraphQL server
 Install the package:
 
 ```bash
-npm install apollo-errors
+npm i -S https://github.com/ABAD-i/apollo-errors.git
 ```
 
 Create some errors:
