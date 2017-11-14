@@ -22,8 +22,8 @@ Create some errors:
 ```javascript
 import { createError } from 'apollo-errors';
 
-export const FooError = createError('FooError', {
-  message: 'A foo error has occurred'
+export const Forbidden = createError(403, {
+  message: 'Forbidden'
 });
 ```
 
@@ -52,10 +52,10 @@ app.listen(8080)
 Throw some errors:
 
 ```javascript
-import { FooError } from './errors';
+import { Forbidden } from './errors';
 
 const resolverThatThrowsError = (root, params, context) => {
-  throw new FooError({
+  throw new Forbidden({
     data: {
       something: 'important'
     }
@@ -72,8 +72,8 @@ Witness glorious simplicity:
   "data": {},
   "errors": [
     {
-      "message":"A foo error has occurred",
-      "name":"FooError",
+      "message":"Forbidden",
+      "code":403,
       "time_thrown":"2016-11-11T00:40:50.954Z",
       "data":{
         "something": "important"
@@ -85,16 +85,16 @@ Witness glorious simplicity:
 
 ## API
 
-### ApolloError ({ [time_thrown: String, data: Object, message: String ]})
+### ApolloError ({ [time_thrown: String, data: Object, message: String, field: String ]})
 
 Creates a new ApolloError object.  Note that `ApolloError` in this context refers
 to an error class created and returned by `createError` documented below.  Error can be
 initialized with a custom `time_thrown` ISODate (default is current ISODate), `data` object (which will be merged with data specified through `createError`, if it exists), and `message` (which will override the message specified through `createError`).
 
 
-### createError(name, {message: String, [data: Object, options: Object]}): ApolloError
+### createError(code, {message: String, field: String [data: Object, options: Object]}): ApolloError
 
-Creates and returns an error class with the given `name` and `message`, optionally initialized with the given `data` and `options`.  `data` passed to `createError` will later be merged with any data passed to the constructor.
+Creates and returns an error class with the given `code` , `message` and `field`, optionally initialized with the given `data` and `options`.  `data` passed to `createError` will later be merged with any data passed to the constructor.
 
 #### Options (default):
 

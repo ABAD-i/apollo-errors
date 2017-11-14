@@ -24,26 +24,29 @@ var isString = function (d) { return Object.prototype.toString.call(d) === '[obj
 var isObject = function (d) { return Object.prototype.toString.call(d) === '[object Object]'; };
 var ApolloError = /** @class */ (function (_super) {
     __extends(ApolloError, _super);
-    function ApolloError(name, config) {
+    function ApolloError(code, config) {
         var _this = _super.call(this, (arguments[2] && arguments[2].message) || '') || this;
         _this._showLocations = false;
         var t = (arguments[2] && arguments[2].time_thrown) || (new Date()).toISOString();
         var m = (arguments[2] && arguments[2].message) || '';
+        var f = (arguments[2] && arguments[2].field) || '';
         var configData = (arguments[2] && arguments[2].data) || {};
         var d = __assign({}, _this.data, configData);
         var opts = ((arguments[2] && arguments[2].options) || {});
-        _this.name = name;
+        _this.code = code;
         _this.message = m;
+        _this.field = f;
         _this.time_thrown = t;
         _this.data = d;
         _this._showLocations = !!opts.showLocations;
         return _this;
     }
     ApolloError.prototype.serialize = function () {
-        var _a = this, name = _a.name, message = _a.message, time_thrown = _a.time_thrown, data = _a.data, _showLocations = _a._showLocations, path = _a.path, locations = _a.locations;
+        var _a = this, code = _a.code, message = _a.message, field = _a.field, time_thrown = _a.time_thrown, data = _a.data, _showLocations = _a._showLocations, path = _a.path, locations = _a.locations;
         var error = {
             message: message,
-            name: name,
+            code: code,
+            field: field,
             time_thrown: time_thrown,
             data: data,
             path: path,
@@ -58,10 +61,10 @@ var ApolloError = /** @class */ (function (_super) {
     return ApolloError;
 }(extendable_error_1.default));
 exports.isInstance = function (e) { return e instanceof ApolloError; };
-exports.createError = function (name, config) {
+exports.createError = function (code, config) {
     assert(isObject(config), 'createError requires a config object as the second parameter');
     assert(isString(config.message), 'createError requires a "message" property on the config object passed as the second parameter');
-    var e = ApolloError.bind(null, name, config);
+    var e = ApolloError.bind(null, code, config);
     return e;
 };
 exports.formatError = function (error, returnNull) {
@@ -69,10 +72,10 @@ exports.formatError = function (error, returnNull) {
     var originalError = error ? error.originalError || error : null;
     if (!originalError)
         return returnNull ? null : error;
-    var name = originalError.name;
-    if (!name || !exports.isInstance(originalError))
+    var code = originalError.code;
+    if (!code || !exports.isInstance(originalError))
         return returnNull ? null : error;
-    var time_thrown = originalError.time_thrown, message = originalError.message, data = originalError.data, _showLocations = originalError._showLocations;
+    var time_thrown = originalError.time_thrown, message = originalError.message, field = originalError.field, data = originalError.data, _showLocations = originalError._showLocations;
     if (_showLocations) {
         var locations = error.locations, path = error.path;
         originalError.locations = locations;
