@@ -8,8 +8,9 @@ const { AssertionError } = assert;
 describe('createError', () => {
   context('when properly used', () => {
     it('returns an error that serializes properly', () => {
-      const FooError = createError(403, {
+      const FooError = createError('error', {
         message: 'A foo error has occurred',
+        code: 0,
         field: 'A field error has occurred',
         data: {
           hello: 'world'
@@ -22,6 +23,7 @@ describe('createError', () => {
       const iso = new Date().toISOString();
       const e = new FooError({
         message: 'A foo 2.0 error has occurred',
+        code: '0',
         field: 'A foo 2.0 error has occurred',
         data: {
           hello: 'world',
@@ -33,10 +35,11 @@ describe('createError', () => {
         },
       });
 
-      const { message, field, code, time_thrown, data } = e.serialize();
+      const { message, field, code, status, time_thrown, data } = e.serialize();
       expect(message).to.equal('A foo 2.0 error has occurred');
+      expect(code).to.equal('0');
       expect(field).to.equal('A foo 2.0 error has occurred');
-      expect(code).to.equal(403);
+      expect(status).to.equal('error');
       expect(time_thrown).to.equal(e.time_thrown);
       expect(data).to.eql({
         hello: 'world',

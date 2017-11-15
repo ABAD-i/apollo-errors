@@ -6,6 +6,7 @@ const isObject = d => Object.prototype.toString.call(d) === '[object Object]';
 
 interface ErrorConfig {
   message: string;
+  code: number;
   field: string;
   time_thrown: string;
   data: any,
@@ -13,8 +14,9 @@ interface ErrorConfig {
 }
 
 class ApolloError extends ExtendableError {
-  code: number;
+  status: string;
   message: string;
+  code: number;
   field: string;
   time_thrown: string;
   data: any;
@@ -22,28 +24,31 @@ class ApolloError extends ExtendableError {
   locations: any;
   _showLocations: boolean=false;
 
-  constructor (code:number, config: ErrorConfig) {
+  constructor (status: string, config: ErrorConfig) {
     super((arguments[2] && arguments[2].message) || '');
 
-    const t = (arguments[2] && arguments[2].time_thrown) || (new Date()).toISOString();
     const m = (arguments[2] && arguments[2].message) || '';
+    const c = (arguments[2] && arguments[2].code) || '';
     const f = (arguments[2] && arguments[2].field) || '';
+    const t = (arguments[2] && arguments[2].time_thrown) || (new Date()).toISOString();
     const configData = (arguments[2] && arguments[2].data) || {};
     const d = {...this.data, ...configData}
     const opts = ((arguments[2] && arguments[2].options) || {})
 
-    this.code = code;
+    this.status = status;
     this.message = m;
+    this.code = c;
     this.field = f
     this.time_thrown = t;
     this.data = d;
     this._showLocations = !!opts.showLocations;
   }
   serialize () {
-    const { code, message, field, time_thrown, data, _showLocations, path, locations } = this;
+    const { status, message, code, field, time_thrown, data, _showLocations, path, locations } = this;
 
     let error = {
       message,
+      status,
       code,
       field,
       time_thrown,
@@ -61,10 +66,10 @@ class ApolloError extends ExtendableError {
 
 export const isInstance = e => e instanceof ApolloError;
 
-export const createError = (code:number, config: ErrorConfig) => {
+export const createError = (status: string, config: ErrorConfig) => {
   assert(isObject(config), 'createError requires a config object as the second parameter');
   assert(isString(config.message), 'createError requires a "message" property on the config object passed as the second parameter');
-  const e = ApolloError.bind(null, code, config);
+  const e = ApolloError.bind(null, status, config);
   return e;
 };
 
@@ -73,9 +78,9 @@ export const formatError = (error, returnNull = false) => {
 
   if (!originalError) return returnNull ? null : error;
 
-  const { code } = originalError;
+  const { status } = originalError;
 
-  if (!code || !isInstance(originalError)) return returnNull ? null : error;
+  if (!status || !isInstance(originalError)) return returnNull ? null : error;
 
   const { time_thrown, message, field, data, _showLocations } = originalError;
 
